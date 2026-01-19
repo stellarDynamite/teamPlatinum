@@ -1,8 +1,6 @@
-
 window.addEventListener('error', function(e) {
     console.error('Global error:', e.message, e.filename, e.lineno);
 });
-
 
 const questionsData = {
     section1: [
@@ -66,7 +64,6 @@ const questionsData = {
             options: ["0", "1", "2", "3"],
             correctAnswer: 2
         },
-     
         ...Array.from({length: 20}, (_, i) => ({
             id: i + 11,
             question: `Sample MCQ Question ${i + 11}?`,
@@ -100,7 +97,6 @@ const questionsData = {
             question: "Discuss the impact of social media on modern society.",
             type: "descriptive"
         },
-     
         ...Array.from({length: 15}, (_, i) => ({
             id: i + 36,
             question: `Sample Descriptive Question ${i + 36}. Provide a detailed answer.`,
@@ -109,26 +105,21 @@ const questionsData = {
     ]
 };
 
-
 let currentSection = 1;
 let currentQuestionIndex = 0;
 let answers = {};
 let flaggedQuestions = new Set();
 let visitedQuestions = new Set();
 let timerInterval;
-let timeRemaining = 120 * 60; 
+let timeRemaining = 120 * 60; // 120 minutes in seconds
 let examStartTime = Date.now();
 
-
 const testData = JSON.parse(sessionStorage.getItem('testData') || '{}');
-console.log('Test data loaded:', testData);
 
 document.getElementById('studentName').textContent = testData.studentName || 'Student';
 document.getElementById('testId').textContent = testData.testId || 'TEST-ID';
 
-
 function initializeExam() {
-   
     const requiredElements = [
         'studentName', 'testId', 'timer', 'timeDisplay',
         'currentQuestionNum', 'totalQuestions', 'questionContent',
@@ -144,20 +135,16 @@ function initializeExam() {
         return;
     }
     
-    console.log('Initializing exam...');
     
     generatePalette();
     loadQuestion();
     startTimer();
     updateStats();
     
-
     visitedQuestions.add(getCurrentQuestionId());
     updatePaletteButton(getCurrentQuestionId());
     
-    console.log('Exam initialized successfully');
 }
-
 
 function startTimer() {
     updateTimerDisplay();
@@ -165,7 +152,7 @@ function startTimer() {
         timeRemaining--;
         updateTimerDisplay();
         
-        if (timeRemaining <= 300) { 
+        if (timeRemaining <= 300) { // 5 minutes warning
             document.getElementById('timer').classList.add('warning');
         }
         
@@ -185,7 +172,6 @@ function updateTimerDisplay() {
     document.getElementById('timeDisplay').textContent = display;
 }
 
-
 function getCurrentQuestionId() {
     const section = currentSection === 1 ? questionsData.section1 : questionsData.section2;
     return section[currentQuestionIndex].id;
@@ -195,16 +181,13 @@ function loadQuestion() {
     const section = currentSection === 1 ? questionsData.section1 : questionsData.section2;
     const question = section[currentQuestionIndex];
     
-    
     const totalQuestions = questionsData.section1.length + questionsData.section2.length;
     const currentNum = currentSection === 1 ? currentQuestionIndex + 1 : questionsData.section1.length + currentQuestionIndex + 1;
     document.getElementById('currentQuestionNum').textContent = currentNum;
     document.getElementById('totalQuestions').textContent = totalQuestions;
     
-
     document.getElementById('questionContent').innerHTML = `<p>${question.question}</p>`;
     
-  
     const flagBtn = document.getElementById('flagBtn');
     if (flaggedQuestions.has(question.id)) {
         flagBtn.classList.add('flagged');
@@ -212,10 +195,8 @@ function loadQuestion() {
         flagBtn.classList.remove('flagged');
     }
     
-
     const optionsContainer = document.getElementById('questionOptions');
     if (currentSection === 1) {
-   
         optionsContainer.innerHTML = question.options.map((option, index) => `
             <div class="option ${answers[question.id] === index ? 'selected' : ''}" data-index="${index}">
                 <div class="option-label">${String.fromCharCode(65 + index)}</div>
@@ -223,18 +204,15 @@ function loadQuestion() {
             </div>
         `).join('');
         
-  
         document.querySelectorAll('.option').forEach(option => {
             option.addEventListener('click', () => selectOption(option));
         });
     } else {
-   
         const savedAnswer = answers[question.id] || '';
         optionsContainer.innerHTML = `
             <textarea class="textarea-answer" id="descriptiveAnswer" placeholder="Type your answer here...">${savedAnswer}</textarea>
         `;
         
-
         document.getElementById('descriptiveAnswer').addEventListener('input', (e) => {
             answers[question.id] = e.target.value;
             updatePaletteButton(question.id);
@@ -242,18 +220,15 @@ function loadQuestion() {
         });
     }
     
-   
     document.getElementById('previousBtn').disabled = currentQuestionIndex === 0 && currentSection === 1;
     
     const isLastQuestion = currentSection === 2 && currentQuestionIndex === questionsData.section2.length - 1;
     document.getElementById('nextBtn').textContent = isLastQuestion ? 'Finish' : 'Next';
     
-
     visitedQuestions.add(question.id);
     updatePaletteButton(question.id);
     updateStats();
     
-
     setTimeout(() => {
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
@@ -262,18 +237,14 @@ function loadQuestion() {
 }
 
 function selectOption(optionElement) {
-
     document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
     
-
     optionElement.classList.add('selected');
     
-
     const questionId = getCurrentQuestionId();
     const optionIndex = parseInt(optionElement.dataset.index);
     answers[questionId] = optionIndex;
     
-
     updatePaletteButton(questionId);
     updateStats();
 }
@@ -281,21 +252,19 @@ function selectOption(optionElement) {
 function generatePalette() {
     const palette1 = document.getElementById('paletteSection1');
     const palette2 = document.getElementById('paletteSection2');
-
+    
     palette1.innerHTML = questionsData.section1.map(q => `
         <button class="palette-btn" data-section="1" data-index="${questionsData.section1.indexOf(q)}" data-id="${q.id}">
             ${q.id}
         </button>
     `).join('');
     
-
     palette2.innerHTML = questionsData.section2.map(q => `
         <button class="palette-btn" data-section="2" data-index="${questionsData.section2.indexOf(q)}" data-id="${q.id}">
             ${q.id}
         </button>
     `).join('');
     
-
     document.querySelectorAll('.palette-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const section = parseInt(btn.dataset.section);
@@ -309,20 +278,16 @@ function updatePaletteButton(questionId) {
     const btn = document.querySelector(`.palette-btn[data-id="${questionId}"]`);
     if (!btn) return;
     
-
     btn.classList.remove('answered', 'flagged', 'current');
     
-
     if (questionId === getCurrentQuestionId()) {
         btn.classList.add('current');
     }
     
-
     if (answers[questionId] !== undefined && answers[questionId] !== '') {
         btn.classList.add('answered');
     }
     
-
     if (flaggedQuestions.has(questionId)) {
         btn.classList.add('flagged');
     }
@@ -333,12 +298,10 @@ function updateAllPaletteButtons() {
     allQuestions.forEach(q => updatePaletteButton(q.id));
 }
 
-
 function navigateToQuestion(section, index) {
     currentSection = section;
     currentQuestionIndex = index;
     
-
     document.querySelectorAll('.section-tab').forEach(tab => {
         tab.classList.remove('active');
         if (parseInt(tab.dataset.section) === section) {
@@ -356,7 +319,6 @@ function nextQuestion() {
     if (currentQuestionIndex < section.length - 1) {
         currentQuestionIndex++;
     } else if (currentSection === 1) {
-  
         currentSection = 2;
         currentQuestionIndex = 0;
         document.querySelectorAll('.section-tab').forEach(tab => {
@@ -375,7 +337,6 @@ function previousQuestion() {
     if (currentQuestionIndex > 0) {
         currentQuestionIndex--;
     } else if (currentSection === 2) {
-   
         currentSection = 1;
         currentQuestionIndex = questionsData.section1.length - 1;
         document.querySelectorAll('.section-tab').forEach(tab => {
@@ -390,7 +351,6 @@ function previousQuestion() {
     updateAllPaletteButtons();
 }
 
-
 function clearResponse() {
     const questionId = getCurrentQuestionId();
     delete answers[questionId];
@@ -404,7 +364,6 @@ function clearResponse() {
     updatePaletteButton(questionId);
     updateStats();
 }
-
 
 function toggleFlag() {
     const questionId = getCurrentQuestionId();
@@ -421,7 +380,6 @@ function toggleFlag() {
     updateStats();
 }
 
-
 function updateStats() {
     const allQuestions = [...questionsData.section1, ...questionsData.section2];
     const answeredCount = Object.keys(answers).filter(id => answers[id] !== undefined && answers[id] !== '').length;
@@ -432,7 +390,6 @@ function updateStats() {
     document.getElementById('notVisitedCount').textContent = notVisitedCount;
     document.getElementById('flaggedCount').textContent = flaggedCount;
 }
-
 
 function showSubmitModal() {
     const allQuestions = [...questionsData.section1, ...questionsData.section2];
@@ -458,7 +415,6 @@ function autoSubmitExam() {
     submitExam();
 }
 
-
 function calculateResults() {
     let correctAnswers = 0;
     let wrongAnswers = 0;
@@ -467,7 +423,6 @@ function calculateResults() {
     let section1Wrong = 0;
     let section2Answered = 0;
     
-  
     questionsData.section1.forEach(q => {
         if (answers[q.id] !== undefined) {
             if (answers[q.id] === q.correctAnswer) {
@@ -482,15 +437,13 @@ function calculateResults() {
         }
     });
     
-
     questionsData.section2.forEach(q => {
         if (answers[q.id] && answers[q.id].trim().length > 50) {
-          
             section2Answered++;
-            correctAnswers++; 
+            correctAnswers++; // For demo purposes, count as correct
         } else if (answers[q.id] && answers[q.id].trim().length > 0) {
             section2Answered++;
-            wrongAnswers++; 
+            wrongAnswers++; // Partial answer
         } else {
             unanswered++;
         }
@@ -500,7 +453,6 @@ function calculateResults() {
     const score = Math.round((correctAnswers / totalQuestions) * 100);
     const timeTaken = 120 * 60 - timeRemaining;
     
-
     const examResults = {
         score,
         correctAnswers,
@@ -518,15 +470,11 @@ function calculateResults() {
     };
     
     sessionStorage.setItem('examResults', JSON.stringify(examResults));
-    console.log('Results saved to sessionStorage:', examResults);
 }
-
 
 function showResults() {
-
     window.location.href = 'results.html';
 }
-
 
 
 document.getElementById('nextBtn').addEventListener('click', nextQuestion);
@@ -545,7 +493,6 @@ document.getElementById('confirmSubmit').addEventListener('click', () => {
     submitExam();
 });
 
-
 document.querySelectorAll('.section-tab').forEach(tab => {
     tab.addEventListener('click', () => {
         const section = parseInt(tab.dataset.section);
@@ -553,11 +500,9 @@ document.querySelectorAll('.section-tab').forEach(tab => {
     });
 });
 
-
 document.getElementById('paletteToggle').addEventListener('click', () => {
     document.querySelector('.question-palette').classList.toggle('collapsed');
 });
-
 
 
 
@@ -568,19 +513,14 @@ window.addEventListener('beforeunload', (e) => {
     }
 });
 
-
 window.addEventListener('load', () => {
-    console.log('Page loaded, initializing...');
     
-   
     if (typeof lucide !== 'undefined') {
-        console.log('Lucide library found, creating icons...');
         lucide.createIcons();
     } else {
         console.error('Lucide library not loaded!');
     }
     
-
     try {
         initializeExam();
     } catch (error) {
@@ -589,9 +529,6 @@ window.addEventListener('load', () => {
     }
 });
 
-
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM Content Loaded');
 });
 
-console.log('Exam System Script Loaded - Plattinum.net');
