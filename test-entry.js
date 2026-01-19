@@ -14,20 +14,13 @@ testIdInput.addEventListener('input', (e) => {
     }
     
     let formatted = '';
-
-    if (value.length > 8) {
-        formatted =
-            value.slice(0, 4) + '-' +
-            value.slice(4, 8) + '-' +
-            value.slice(8);
-    } else if (value.length > 4) {
-        formatted =
-            value.slice(0, 4) + '-' +
-            value.slice(4);
-    } else {
-        formatted = value;
+    for (let i = 0; i < value.length; i++) {
+        if (i > 0 && i % 4 === 0) {
+            formatted += '-';
+        }
+        formatted += value[i];
     }
-
+    
     e.target.value = formatted;
 });
 
@@ -150,4 +143,3 @@ emailInput.addEventListener('focus', (e) => {
     e.target.style.borderColor = 'var(--blue-accent)';
 });
 
-console.log('Test Entry Page - Plattinum.net');
