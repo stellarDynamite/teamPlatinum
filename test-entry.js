@@ -9,8 +9,8 @@ const loadingOverlay = document.getElementById('loadingOverlay');
 testIdInput.addEventListener('input', (e) => {
     let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
     
-    if (value.length > 5) {
-        value = value.substring(0, 5);
+    if (value.length > 12) {
+        value = value.substring(0, 12);
     }
     
     let formatted = '';
